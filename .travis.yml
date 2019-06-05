@@ -15,7 +15,6 @@ install:
 - sudo apt install -y --only-upgrade docker-ce
 - sudo pip install git-semver
 - docker info
-- source tests/installer/slack.sh
 
 # Setup notification system
 #
@@ -189,29 +188,6 @@ jobs:
     # We don't run on release candidates
     if: tag !~ /(-rc)/
 
-
-
-    # This is the nightly pre-execution step (Jobs, preparatory steps for nightly, etc)
-  - stage: Nightly operations
-
-    name: Run coverity scan
-    # Just notify people that Nightly ops triggered, use the first step as a hook to do that
-    before_script: post_message "TRAVIS_MESSAGE" "Starting nightly operations"
-    script: ./coverity-install.sh && ./coverity-scan.sh || echo "Coverity failed :("
-
-  - name: Kickstart files integrity testing (extended)
-    script: ./tests/installer/checksums.sh
-
-  - name: Run labeler on github issues
-    script: .travis/labeler.sh # labeler should be replaced with GitHub Actions when they hit GA
-
-    # This is generating the changelog for nightly release and publish it
-  - name: Generate nightly changelog
-    before_script: post_message "TRAVIS_MESSAGE" "Starting changelog generation for nightlies"
-    script: ".travis/nightlies.sh"
-    after_failure: post_message "TRAVIS_MESSAGE" "<!here> Nightly changelog generation failed"
-    git:
-      depth: false
 
 
 
